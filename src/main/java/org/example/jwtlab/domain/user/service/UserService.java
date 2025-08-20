@@ -63,6 +63,28 @@ public class UserService {
     // 관리자 권한 부여
     public UpdateUserRoleResponse updateUserRole (
             Long userId,
+            Long targetUserId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new UserException(UserErrorCode.USER_ID_NOT_FOUND)
+        );
+
+        if(!user.getUserRole().equals(UserRole.ADMIN)) {
+            throw new UserException(UserErrorCode.ACCESS_DENIED);
+        }
+
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_ID_NOT_FOUND));
+
+
+        targetUser.updateRole(UserRole.ADMIN);
+        userRepository.save(targetUser);
+
+        return UpdateUserRoleResponse.from(targetUser);
+    }
+
+    /* 관리자 권한 부여 (테스트 용)
+    public UpdateUserRoleResponse updateUserRole (
+            Long userId,
             Long targetUserId,
             UpdateUserRoleRequest updateUserRoleRequest) {
         User user = userRepository.findById(userId).orElseThrow(
@@ -81,4 +103,6 @@ public class UserService {
         userRepository.save(targetUser);
         return UpdateUserRoleResponse.from(targetUser);
     }
+    */
+
 }
