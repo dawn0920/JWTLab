@@ -26,7 +26,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String url  = request.getRequestURI();
 
-        if (url.startsWith("/api/auth")) {
+        if (url.startsWith("/api/auth") || url.startsWith("/v3/api-docs") || url.startsWith("/swagger-ui")) {
             filterChain.doFilter(request, response);
             return;
         }
