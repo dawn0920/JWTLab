@@ -1,5 +1,6 @@
 package org.example.jwtlab.global.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.jwtlab.global.jwt.JwtUtil;
 import org.example.jwtlab.global.jwt.SecurityFilter;
@@ -23,11 +24,26 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(
+                                "/v3/api-docs/**", // OpenAPI 3 문서 경로
+                                "/swagger-ui.html", // Swagger UI 페이지
+                                "/swagger-ui/**" // Swagger UI 하위 경로
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
+
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"status\": 403, \"code\": \"ACCESS_DENIED\", \"message\": \"접근 권한이 없습니다.\"}");
+                        })
+                )
+
                 .addFilterBefore(new SecurityFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
