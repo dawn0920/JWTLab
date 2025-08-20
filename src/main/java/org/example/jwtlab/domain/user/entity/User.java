@@ -13,6 +13,13 @@ public class User {
     private String name;
     private UserRole userRole;
 
+    public User(String email, String password, String name, UserRole userRole) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.userRole = userRole;
+    }
+
     public void updateRole(UserRole userRole) {
         this.userRole = userRole;
     }
